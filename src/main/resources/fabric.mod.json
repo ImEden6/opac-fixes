@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "id": "mutant_creepers_no_explody",
+  "id": "opac_fixes",
   "version": "${version}",
-  "name": "Mutant Creepers No Explody",
-  "icon": "assets/mutant_creepers_no_explody/icon.png",
-  "description": "Prevents Mutant Monsters' explosions from griefing blocks and entities in OPAC-claimed areas.",
+  "name": "OPAC Fixes",
+  "icon": "assets/opac_fixes/icon.png",
+  "description": "Claim protection compatibility fixes for Open Parties and Claims.",
   "authors": [
     "Mervyn"
   ],
@@ -15,20 +15,17 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "me.mervyn.m_creepers_no_explody.MutantCreepersNoExplody"
+      "com.mervyn.opac_fixes.OpacFixes"
     ]
   },
   "mixins": [
-    "mutant_creepers_no_explody.mixins.json"
+    "opac_fixes.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=0.14.22",
     "fabric-api": "*",
     "minecraft": "~1.20.1",
     "java": ">=17",
-    "mutantmonsters": "*"
-  },
-  "recommends": {
     "xaeropac": "*"
   }
 }

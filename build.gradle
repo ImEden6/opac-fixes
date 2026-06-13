@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '1.6-SNAPSHOT'
+	id 'fabric-loom' version '1.11-SNAPSHOT'
 	id 'maven-publish'
 }
 
@@ -19,6 +19,12 @@ repositories {
 		name = "Fuzs Mod Resources"
 		url = "https://raw.githubusercontent.com/Fuzss/modresources/main/maven/"
 	}
+	maven {
+		url "https://cursemaven.com"
+	}
+	flatDir {
+		dirs 'references'
+	}
 }
 
 dependencies {
@@ -27,8 +33,11 @@ dependencies {
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-	// Compile-only dependencies for mixin targets
-	modCompileOnly "maven.modrinth:mutant-monsters:v8.0.8-1.20.1-Fabric"
+	// Mod dependencies resolved from CurseMaven
+	modCompileOnly "curse.maven:open-parties-and-claims-636608:7652874"
+	modCompileOnly "curse.maven:botania-fabric-421839:8138522"
+	modCompileOnly "curse.maven:supplementaries-412082:7431872"
+	modCompileOnly "curse.maven:mutant-monsters-852665:7232504"
 }
 
 processResources {

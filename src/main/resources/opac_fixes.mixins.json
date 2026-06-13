@@ -1,0 +1,16 @@
+{
+    "required": true,
+    "minVersion": "0.8",
+    "package": "com.mervyn.opac_fixes.mixin",
+    "compatibilityLevel": "JAVA_17",
+    "plugin": "com.mervyn.opac_fixes.mixin.OpacFixesMixinPlugin",
+    "mixins": [
+        "MutatedExplosionMixin",
+        "BombExplosionMixin",
+        "RingOfLokiMixin"
+    ],
+    "client": [],
+    "injectors": {
+        "defaultRequire": 1
+    }
+}
