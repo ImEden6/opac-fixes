@@ -10,8 +10,20 @@ Some mods implement custom explosion or block placement/breaking mechanics that 
 
 - **Mutant Monsters**: Prevents mutated explosions (e.g. Mutant Creepers) from destroying blocks and harming entities inside protected claims.
 - **Supplementaries**: Prevents Red Merchants' bombs from bypass griefing blocks and entities in protected claims.
-- **Botania**: Prevents the Ring of Loki from bypass-placing or bypass-breaking blocks inside protected claims using blueprints.
+- **Botania**:
+  - **Ring of Loki**: Prevents players from bypass-placing or bypass-breaking blocks inside protected claims using relic blueprints.
+  - **Bore Lens**: Prevents mana bursts fired by players (via Mana Blaster) or block entities (via Mana Spreader) from breaking blocks inside claims. Fired bursts will dissipate on impact.
+  - **Red String (Container, Dispenser, Spoofer, Comparator, etc.)**: Prevents unauthorized inventory access or block interactions across claim boundaries.
 - **Conditional Loading**: Compatibility mixins for Mutant Monsters, Supplementaries, and Botania only load if the respective mods are detected at runtime.
+
+## Server Administration & Configuration
+
+### Allowing Spreader Automation (Bore Lens)
+By default, Mana Spreaders equipped with a Bore Lens are blocked from breaking blocks inside protected claims. If server administrators wish to permit automated block-breaking setups (e.g., automated quarries or tree farms), they can explicitly whitelist the Botania mana burst entity:
+
+1. Open the OPAC server config file (typically `config/openpartiesandclaims/server.json`).
+2. Locate the `entitiesAllowedToGrief` list.
+3. Add `"break$botania:mana_burst"` to the list.
 
 ## Installation
 

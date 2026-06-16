@@ -24,6 +24,7 @@ public class OpacCompat {
     private static final Method GET_CHUNK_PROTECTION;
     private static final Method ON_BLOCK_INTERACTION;
     private static final Method ON_ENTITY_DESTROY_BLOCK;
+    private static final Method ON_POS_AFFECTED_BY_ANOTHER_POS;
 
     public static final boolean AVAILABLE;
 
@@ -38,6 +39,7 @@ public class OpacCompat {
         Method getChunkProtection = null;
         Method onBlockInteraction = null;
         Method onEntityDestroyBlock = null;
+        Method onPosAffectedByAnotherPos = null;
         
         boolean available = false;
 
@@ -85,6 +87,16 @@ public class OpacCompat {
                     BlockPos.class,
                     boolean.class);
             
+            onPosAffectedByAnotherPos = chunkProtectionClass.getMethod(
+                    "onPosAffectedByAnotherPos",
+                    net.minecraft.server.world.ServerWorld.class,
+                    net.minecraft.util.math.ChunkPos.class,
+                    net.minecraft.server.world.ServerWorld.class,
+                    net.minecraft.util.math.ChunkPos.class,
+                    boolean.class,
+                    boolean.class,
+                    boolean.class);
+            
             available = true;
         } catch (ReflectiveOperationException e) {
             OpacFixes.LOGGER.error("OPAC compatibility initialization failed", e);
@@ -99,6 +111,7 @@ public class OpacCompat {
         GET_CHUNK_PROTECTION = getChunkProtection;
         ON_BLOCK_INTERACTION = onBlockInteraction;
         ON_ENTITY_DESTROY_BLOCK = onEntityDestroyBlock;
+        ON_POS_AFFECTED_BY_ANOTHER_POS = onPosAffectedByAnotherPos;
         AVAILABLE = available;
     }
 
@@ -192,4 +205,80 @@ public class OpacCompat {
             return false;
         }
     }
+
+    public static boolean isBlockBreakProtectedEntity(World world, BlockPos pos, Entity entity) {
+        if (!AVAILABLE || world.isClient()) {
+            return false;
+        }
+        try {
+            Object server = world.getServer();
+            if (server == null) {
+                return false;
+            }
+            Object serverData = GET_SERVER_DATA.invoke(null, server);
+            if (serverData == null) {
+                return false;
+            }
+            Object chunkProtection = GET_CHUNK_PROTECTION.invoke(serverData);
+            if (chunkProtection == null) {
+                return false;
+            }
+            net.minecraft.block.BlockState blockState = world.getBlockState(pos);
+            net.minecraft.server.world.ServerWorld serverWorld = (net.minecraft.server.world.ServerWorld) world;
+            
+            // onEntityDestroyBlock returns true if breaking is BLOCKED. We pass messages = false.
+            return (boolean) ON_ENTITY_DESTROY_BLOCK.invoke(
+                    chunkProtection,
+                    serverData,
+                    blockState,
+                    entity,
+                    serverWorld,
+                    pos,
+                    false  // messages (false to avoid spam)
+            );
+        } catch (ReflectiveOperationException e) {
+            OpacFixes.LOGGER.error("Failed to invoke OPAC onEntityDestroyBlock for entity", e);
+            return false;
+        }
+    }
+
+    public static boolean isConnectionProtected(World world, BlockPos from, BlockPos to) {
+        if (!AVAILABLE || world.isClient()) {
+            return false;
+        }
+        try {
+            Object server = world.getServer();
+            if (server == null) {
+                return false;
+            }
+            Object serverData = GET_SERVER_DATA.invoke(null, server);
+            if (serverData == null) {
+                return false;
+            }
+            Object chunkProtection = GET_CHUNK_PROTECTION.invoke(serverData);
+            if (chunkProtection == null) {
+                return false;
+            }
+            
+            net.minecraft.server.world.ServerWorld serverWorld = (net.minecraft.server.world.ServerWorld) world;
+            net.minecraft.util.math.ChunkPos fromChunk = new net.minecraft.util.math.ChunkPos(from);
+            net.minecraft.util.math.ChunkPos toChunk = new net.minecraft.util.math.ChunkPos(to);
+            
+            // onPosAffectedByAnotherPos returns true if access/interaction is protected/blocked
+            return (boolean) ON_POS_AFFECTED_BY_ANOTHER_POS.invoke(
+                    chunkProtection,
+                    serverWorld, // toWorld
+                    toChunk,     // toChunk
+                    serverWorld, // fromWorld
+                    fromChunk,   // fromChunk
+                    false,       // includeWilderness
+                    true,        // affectsBlocks
+                    false        // affectsEntities
+            );
+        } catch (ReflectiveOperationException e) {
+            OpacFixes.LOGGER.error("Failed to invoke OPAC onPosAffectedByAnotherPos", e);
+            return false;
+        }
+    }
 }
+

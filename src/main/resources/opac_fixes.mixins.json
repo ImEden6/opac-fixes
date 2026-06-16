@@ -8,7 +8,9 @@
         "MutatedExplosionMixin",
         "BombExplosionMixin",
         "RingOfLokiMixin",
-        "ExplosionAccessor"
+        "ExplosionAccessor",
+        "BoreLensMixin",
+        "RedStringBlockEntityMixin"
     ],
     "client": [],
     "injectors": {

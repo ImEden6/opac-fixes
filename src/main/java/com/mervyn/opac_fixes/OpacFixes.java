@@ -10,6 +10,6 @@ public class OpacFixes implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        LOGGER.info("Initializing OPAC Fixes!");
+        LOGGER.info("Initializing OPAC Fixes! AVAILABLE: {}", OpacCompat.AVAILABLE);
     }
 }

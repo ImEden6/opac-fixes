@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.2] - 2026-06-17
+
+### Added
+
+- Added Open Parties and Claims (OPAC) boundary protection for Botania's Red String block entities (Container, Dispenser, Spoofer, Comparator, Fertilizer, etc.), blocking unauthorized cross-claim connections and inventory access.
+
+## [1.1.1] - 2026-06-16
+
+### Added
+
+- Added Open Parties and Claims (OPAC) protection support for Botania's Bore Lens when fired from a Mana Spreader or Mana Blaster. Protected blocks are safe, and the mana burst will terminate upon impact.
+
 ## [1.1.0] - 2026-06-13
 
 ### Added
