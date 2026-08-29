@@ -10,7 +10,8 @@
         "RingOfLokiMixin",
         "ExplosionAccessor",
         "BoreLensMixin",
-        "RedStringBlockEntityMixin"
+        "RedStringBlockEntityMixin",
+        "HammerItemMixin"
     ],
     "client": [],
     "injectors": {

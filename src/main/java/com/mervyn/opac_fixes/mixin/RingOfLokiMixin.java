@@ -24,6 +24,22 @@ import com.mervyn.opac_fixes.OpacCompat;
 @Mixin(value = RingOfLokiItem.class, priority = 1000)
 public abstract class RingOfLokiMixin {
 
+    // breakOnAllCursors calls breakOtherBlock then removeBlockWithDrops back-to-back for the
+    // same coords before moving to the next cursor, so caching just the last-checked position
+    // avoids running (and messaging) the same protection check twice per cursor.
+    private static BlockPos opacfixes$cachedCoords;
+    private static boolean opacfixes$cachedProtected;
+
+    private static boolean opacfixes$isProtectedCached(World world, BlockPos coords, PlayerEntity player) {
+        if (coords.equals(opacfixes$cachedCoords)) {
+            return opacfixes$cachedProtected;
+        }
+        boolean result = OpacCompat.isBlockBreakProtected(world, coords, player);
+        opacfixes$cachedCoords = coords;
+        opacfixes$cachedProtected = result;
+        return result;
+    }
+
     @Redirect(method = "onPlayerInteract", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;useOnBlock(Lnet/minecraft/item/ItemUsageContext;)Lnet/minecraft/util/ActionResult;"))
     private static ActionResult redirectUseOnBlock(ItemStack stack, ItemUsageContext ctx) {
         if (OpacCompat.isBlockProtected(ctx.getWorld(), ctx.getBlockPos(), ctx.getPlayer(), ctx.getHand(), ctx.getSide())) {
@@ -42,14 +58,14 @@ public abstract class RingOfLokiMixin {
 
     @Redirect(method = "breakOnAllCursors", at = @At(value = "INVOKE", target = "Lvazkii/botania/api/item/SequentialBreaker;breakOtherBlock(Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/item/ItemStack;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/Direction;)V"))
     private static void redirectBreakOtherBlock(SequentialBreaker breaker, PlayerEntity player, ItemStack stack, BlockPos coords, BlockPos pos, Direction side) {
-        if (!OpacCompat.isBlockBreakProtected(player.getWorld(), coords, player)) {
+        if (!opacfixes$isProtectedCached(player.getWorld(), coords, player)) {
             breaker.breakOtherBlock(player, stack, coords, pos, side);
         }
     }
 
     @Redirect(method = "breakOnAllCursors", at = @At(value = "INVOKE", target = "Lvazkii/botania/common/item/equipment/tool/ToolCommons;removeBlockWithDrops(Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/item/ItemStack;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Ljava/util/function/Predicate;)V"))
     private static void redirectRemoveBlockWithDrops(PlayerEntity player, ItemStack stack, World world, BlockPos coords, Predicate<BlockState> predicate) {
-        if (!OpacCompat.isBlockBreakProtected(world, coords, player)) {
+        if (!opacfixes$isProtectedCached(world, coords, player)) {
             ToolCommons.removeBlockWithDrops(player, stack, world, coords, predicate);
         }
     }

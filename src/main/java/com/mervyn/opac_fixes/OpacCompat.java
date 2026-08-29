@@ -115,6 +115,24 @@ public class OpacCompat {
         AVAILABLE = available;
     }
 
+    private record ProtectionContext(Object serverData, Object chunkProtection) {}
+
+    private static ProtectionContext resolveContext(World world) throws ReflectiveOperationException {
+        Object server = world.getServer();
+        if (server == null) {
+            return null;
+        }
+        Object serverData = GET_SERVER_DATA.invoke(null, server);
+        if (serverData == null) {
+            return null;
+        }
+        Object chunkProtection = GET_CHUNK_PROTECTION.invoke(serverData);
+        if (chunkProtection == null) {
+            return null;
+        }
+        return new ProtectionContext(serverData, chunkProtection);
+    }
+
     public static void onExplosionDetonate(Explosion explosion, List<Entity> entityList, World world) {
         if (!AVAILABLE || world.isClient()) {
             return;
@@ -135,25 +153,17 @@ public class OpacCompat {
             return false;
         }
         try {
-            Object server = world.getServer();
-            if (server == null) {
-                return false;
-            }
-            Object serverData = GET_SERVER_DATA.invoke(null, server);
-            if (serverData == null) {
-                return false;
-            }
-            Object chunkProtection = GET_CHUNK_PROTECTION.invoke(serverData);
-            if (chunkProtection == null) {
+            ProtectionContext ctx = resolveContext(world);
+            if (ctx == null) {
                 return false;
             }
             net.minecraft.block.BlockState blockState = world.getBlockState(pos);
             net.minecraft.server.world.ServerWorld serverWorld = (net.minecraft.server.world.ServerWorld) world;
-            
+
             // onBlockInteraction returns true if interaction/placement is BLOCKED
             return (boolean) ON_BLOCK_INTERACTION.invoke(
-                    chunkProtection,
-                    serverData,
+                    ctx.chunkProtection(),
+                    ctx.serverData(),
                     blockState,
                     player,
                     hand,
@@ -175,25 +185,17 @@ public class OpacCompat {
             return false;
         }
         try {
-            Object server = world.getServer();
-            if (server == null) {
-                return false;
-            }
-            Object serverData = GET_SERVER_DATA.invoke(null, server);
-            if (serverData == null) {
-                return false;
-            }
-            Object chunkProtection = GET_CHUNK_PROTECTION.invoke(serverData);
-            if (chunkProtection == null) {
+            ProtectionContext ctx = resolveContext(world);
+            if (ctx == null) {
                 return false;
             }
             net.minecraft.block.BlockState blockState = world.getBlockState(pos);
             net.minecraft.server.world.ServerWorld serverWorld = (net.minecraft.server.world.ServerWorld) world;
-            
+
             // onEntityDestroyBlock returns true if breaking is BLOCKED
             return (boolean) ON_ENTITY_DESTROY_BLOCK.invoke(
-                    chunkProtection,
-                    serverData,
+                    ctx.chunkProtection(),
+                    ctx.serverData(),
                     blockState,
                     player,
                     serverWorld,
@@ -211,25 +213,17 @@ public class OpacCompat {
             return false;
         }
         try {
-            Object server = world.getServer();
-            if (server == null) {
-                return false;
-            }
-            Object serverData = GET_SERVER_DATA.invoke(null, server);
-            if (serverData == null) {
-                return false;
-            }
-            Object chunkProtection = GET_CHUNK_PROTECTION.invoke(serverData);
-            if (chunkProtection == null) {
+            ProtectionContext ctx = resolveContext(world);
+            if (ctx == null) {
                 return false;
             }
             net.minecraft.block.BlockState blockState = world.getBlockState(pos);
             net.minecraft.server.world.ServerWorld serverWorld = (net.minecraft.server.world.ServerWorld) world;
-            
+
             // onEntityDestroyBlock returns true if breaking is BLOCKED. We pass messages = false.
             return (boolean) ON_ENTITY_DESTROY_BLOCK.invoke(
-                    chunkProtection,
-                    serverData,
+                    ctx.chunkProtection(),
+                    ctx.serverData(),
                     blockState,
                     entity,
                     serverWorld,
@@ -247,26 +241,18 @@ public class OpacCompat {
             return false;
         }
         try {
-            Object server = world.getServer();
-            if (server == null) {
+            ProtectionContext ctx = resolveContext(world);
+            if (ctx == null) {
                 return false;
             }
-            Object serverData = GET_SERVER_DATA.invoke(null, server);
-            if (serverData == null) {
-                return false;
-            }
-            Object chunkProtection = GET_CHUNK_PROTECTION.invoke(serverData);
-            if (chunkProtection == null) {
-                return false;
-            }
-            
+
             net.minecraft.server.world.ServerWorld serverWorld = (net.minecraft.server.world.ServerWorld) world;
             net.minecraft.util.math.ChunkPos fromChunk = new net.minecraft.util.math.ChunkPos(from);
             net.minecraft.util.math.ChunkPos toChunk = new net.minecraft.util.math.ChunkPos(to);
-            
+
             // onPosAffectedByAnotherPos returns true if access/interaction is protected/blocked
             return (boolean) ON_POS_AFFECTED_BY_ANOTHER_POS.invoke(
-                    chunkProtection,
+                    ctx.chunkProtection(),
                     serverWorld, // toWorld
                     toChunk,     // toChunk
                     serverWorld, // fromWorld

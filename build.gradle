@@ -38,6 +38,7 @@ dependencies {
 	modCompileOnly "curse.maven:botania-fabric-421839:8138522"
 	modCompileOnly "curse.maven:supplementaries-412082:7431872"
 	modCompileOnly "curse.maven:mutant-monsters-852665:7232504"
+	modCompileOnly "maven.modrinth:just-hammers:B5VNswMi"
 }
 
 processResources {

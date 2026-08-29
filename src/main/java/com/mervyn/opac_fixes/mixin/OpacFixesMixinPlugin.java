@@ -27,6 +27,9 @@ public class OpacFixesMixinPlugin implements IMixinConfigPlugin {
         if (mixinClassName.endsWith("RingOfLokiMixin") || mixinClassName.endsWith("BoreLensMixin") || mixinClassName.endsWith("RedStringBlockEntityMixin")) {
             return FabricLoader.getInstance().isModLoaded("botania");
         }
+        if (mixinClassName.endsWith("HammerItemMixin")) {
+            return FabricLoader.getInstance().isModLoaded("justhammers");
+        }
         return true;
     }
 
